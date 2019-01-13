@@ -1,0 +1,250 @@
+---
+title: "API Programming in R via Shiny Applications"
+author: Azka Javaid
+output:
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+## Application Programming Interface (API) 
+
+- Retrieve live and continuously updating streaming data
+- Based on the HyperText Transfer Protocol (HTTP) format to enable communication between a client and a server
+- Client/server communication is facilitated by GET (request data by passing a set of parameters) and POST (submit data payload for processing)
+- API Authentication methods: API Keys, OAuth and JSON Web Token (JWT)
+
+## Business and Strategic Value of APIs
+
+- Build innovative tools and structures that combine services via APIs (Mint) 
+- Provide a streamlined and seamless access to services and offerings
+- Improve system efficiency, reduce infrastructure costs and drive user engagement
+
+## Shiny Applications
+
+- R package for building and communicating interactive web applications
+- Incorporate CSS themes, htmlwidgets and JavaScript
+- Host and deploy applications to the cloud using Shinyapps.io
+
+## Shiny Applications and APIs
+
+- Display near real-time data and analysis via APIs using Shiny Applications
+- Facilitate a dynamic understanding of user/business insights
+- Build user/business profile using social media 
+
+## API Programming in R
+
+- *httr* package to make web requests (GET, PATCH, POST, HEAD, PUT, DELETE)
+- *jsonlite* package for processing JSON data received from a client (fromJSON)
+
+## Location Explorer Application
+
+- Build a comprehensive platform for locating food, events, transportation and local vendors for a geographic location
+- Profile local businesses, landmarks and vendors using the Google Places API
+- Display geocoded events via the Eventbrite and Meetup APIs
+- Showcase local food vendors via the Yelp API 
+
+## 
+<div align="center">
+<img src="LocationExplorerUI.png" width=700 height=500>
+</div>
+
+##
+<div align="center">
+<img src="LocationExplorerPopup.png" width=800 height=550>
+</div>
+
+## Google Places API
+
+- Provides information about 100 million places across a range of categories
+- Concatenate location (latitude, longitude), search radius and authentication key credentials to display information (location/rating) about places like art galleries, cafes and museums 
+- Show transportation information about nearest subway and train stations and taxi stands
+- Authenticate using API keys
+
+## HTTP Request/Response Processing
+```{r eval = FALSE}
+url <- paste("https://maps.googleapis.com/maps/api/
+             place/nearbysearch/json?location=", 
+             clat, ",", clng, "&radius=", distance, 
+             "&types=", input$variable, "&key=KEY", sep = "")
+
+document <- fromJSON(txt = url)
+
+dat <- data.frame(
+  document$results$geometry$location$lng, 
+  document$results$geometry$location$lat,
+  document$results$name
+)
+```
+
+## Searching for Cafes
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/GoogleAPI2.png" width=600 height=400>
+</div>
+
+## Eventbrite API
+
+- Retrieve geocoded events 
+- Concatenate location (latitude, longitude), search radius, event type and authentication token
+- Authenticate using OAuth2 (OAuth Token)
+
+## HTTP Request/Response Processing
+```{r eval = FALSE}
+eventBUrl <- paste("https://www.eventbriteapi.com/v3/
+                   events/search/?location.latitude=", 
+                   clat, "&location.longitude=", clng,
+                   "&location.within=", input$miles, 
+                   "mi&", "start_date.keyword=", 
+                   input$eventBriteTime, "&categories=", 
+                   eventid, "&token=TOKEN&expand=venue", sep = "")
+resEventB <- fromJSON(txt = eventBUrl)
+```
+
+
+## Searching for Eventbrite Events
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/EventbriteAPI2.png" width=600 height=400>
+</div>
+
+## Meetup API
+
+- Authenticate using API keys
+```{r, eval = FALSE}
+# if event type (i.e. technology) is defined by the user 
+json.url <- paste("http://api.meetup.com/2/open_events.json?lat=", 
+                  clat, "&lon=", clng, "&radius=", 
+                  input$miles, "&topic=", input$meetupTopic, 
+                  "&time=", input$meetupTime[1], "w", ",", 
+                  input$meetupTime[2], "w", 
+                  "&fields=group_photos;key=KEY", sep = "")
+
+res <- fromJSON(txt = json.url)
+```
+
+## Searching for Meetup Events
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/MeetupAPI2.png" width=600 height=400>
+</div>
+
+
+## Yelp API
+- Retrieve business and vendor information 
+- Authenticate using API Key (changed March 1, 2018 from OAuth 2.0)
+
+```{r, eval = FALSE}
+url2 <- modify_url(
+  "https://api.yelp.com", path = c("v3", "businesses", "search"),
+  query = list(
+    term = input$yelpSearch, latitude = clat, longitude = clng, 
+    radius_filter = radiusYelp,
+    limit = 10
+  )
+)
+res <- GET(url2, add_headers("Authorization" = 
+                               paste("bearer", API_KEY)))
+ct <- content(res)
+```
+
+## Searching for Cafes via Yelp
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/YelpAPI2.png" width=600 height=400>
+</div>
+
+## Plotting via Leaflet
+- *OpenStreetMap.France* Map tile defined
+- Popup symbols defined using *makeIcon* from the *leaflet* package
+```{r, eval = FALSE}
+googleIcon <- makeIcon(
+  iconUrl = "IMAGE URL",
+  iconWidth = 40, iconHeight = 40,
+  iconAnchorX = 0, iconAnchorY = 0
+)
+```
+- Embedding code in progress bars
+```{r, eval = FALSE}
+withProgress(message = "Application loading", value = 0, {
+  incProgress(0.3, detail = "Getting data")
+  incProgress(0.7, detail = "Finishing") })
+```
+
+## Twitter Analytics Application 
+- Provide a platform to perform live profile analysis of a topic and user's tweets (timeline and favorite tweets)
+- Analyze tweets using sentiment, text, emoji, geographic analysis and topic modeling via data tables, word cloud, bar plot, time series and network plots
+- Built using the *twitteR* package, an interface to the Twitter API
+
+## Sentiment Analysis
+- Analyze postive/negative sentiment of tweets using Julia Silge and David Robinson's *tidytext* package
+- NRC Lexicon for sentiment categorization 
+- Analysis presented via word cloud, bar plot and timeseries (visualize sentiment of user tweets overtime)
+
+## Sentiment Analysis (Favorite Tweets)
+- Spike on positive liked tweets on April 20th (NYC R Conference!)
+<div align="left">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/TimeSeriesFav.png" width=650 height=450>
+</div>
+
+## Geographic Analysis
+- Perform geographic specific trend analysis 
+- Capture user location click and show trends by location coordinates
+- Translate multilingual tweets in English using the Google Translation API
+- Visualized using *leaflet*
+
+## Mapping Trends
+- Searching for tweets in New York on April 28, 2018
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/GeoMapTrends.png" width=700 height=450>
+</div>
+
+## Mapping Tweets
+- Global visualization of location enabled tweets by topic using *leaflet*
+- Show influence (retweet count, favorite count) and movement of tweets overtime (by hour, weekday) 
+
+## 
+
+- Tweets related to *#rstats*
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/mapping_tweets.png" width=760 height=500>
+</div>
+
+## Network Analysis
+- Assess a hashtag/topic's influence by searching mentions of retweets
+- Perform sentiment analysis using the NRC Emotion Lexicon 
+- Retweets related to *#rstats*
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/network_retweet.png" width=650 height=350>
+</div>
+
+## Following/Follower Network
+- Show following/follower attributes for a user
+- Visualized using *visNetwork* from the *igraph* package
+- *rstudio's* followers and user information for *R4DScommunity*
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/network_follower.png" width=650 height=450>
+</div>
+
+## Emoji Analysis
+- Emoji analysis of user/topic's tweets
+- Visualized using interactive tools like *ggplotly* from the *plotly* package
+
+<div align="center">
+<img src="/Users/Azka.Javaid@ibm.com/projects/pelican-site/content/images/emojiFavorite.png" width=650 height=350>
+</div>
+
+## Resources
+- Packages: 
+    + *twitteR* 
+    +  *httr*
+    + *jsonlite* 
+    + *leaflet* 
+    + *plotly* 
+    + *tidytext* 
+    + *igraph*
+
+- R Twitter Landscape (*#rstats*)
+
+
